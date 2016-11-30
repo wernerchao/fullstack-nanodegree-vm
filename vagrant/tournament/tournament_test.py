@@ -8,6 +8,16 @@
 
 from tournament import *
 
+def testRegister():
+    registerPlayer("Chandra Nalaar")
+    c = countPlayers()
+    print "countPlayers() is: "
+    print c
+    if c != 1:
+        raise ValueError(
+            "After one player registers, countPlayers() should be 1. Got {c}".format(c=c))
+    print "0. countPlayers() returns 1 after one player is registered."
+
 def testCount():
     """
     Test for initial player count,
@@ -148,8 +158,9 @@ def testPairings():
 
 
 if __name__ == '__main__':
-    testCount()
-    testStandingsBeforeMatches()
-    testReportMatches()
-    testPairings()
+    testRegister()
+    # testCount()
+    # testStandingsBeforeMatches()
+    # testReportMatches()
+    # testPairings()
     print "Success!  All tests pass!"

@@ -6,4 +6,16 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
+DROP TABLE IF EXISTS players, matches;
 
+CREATE TABLE players (
+    id serial NOT NULL,
+    name TEXT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE matches (
+    id serial PRIMARY KEY,
+    winner INTEGER REFERENCES players (id) NOT NULL,
+    loser INTEGER REFERENCES players (id) NOT NULL
+);
