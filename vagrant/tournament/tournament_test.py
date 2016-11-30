@@ -158,8 +158,8 @@ def testPairings():
 
 
 if __name__ == '__main__':
-    testRegister()
-    # testCount()
+    # testRegister()
+    testCount()
     # testStandingsBeforeMatches()
     # testReportMatches()
     # testPairings()
