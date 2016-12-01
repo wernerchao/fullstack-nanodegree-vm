@@ -71,11 +71,13 @@ def playerStandings():
     """
     conn = connect()
     c = conn.cursor()
-    c.execute("select * from matches sorted by wins;")
-    results = c.fetchone()
+    c.execute("DROP VIEW IF EXISTS win_totals;")
+    c.execute("CREATE VIEW win_totals as select players.id, players.name, count(players.name) as win_total from players, matches where players.id = matches.winner group by players.id, players.name order by win_total desc;")
+    c.execute("select * from win_totals")
+    results = c.fetchall()
     conn.close()
     if results:
-        return results[0]
+        return results
     else:
         return '0'
 
@@ -87,8 +89,12 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
- 
- 
+    conn = connect()
+    c = conn.cursor()
+    c.execute("insert into matches (winner, loser) values (%s, %s);", (winner,loser))
+    conn.commit()
+    conn.close()
+
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
   
