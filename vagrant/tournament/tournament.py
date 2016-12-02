@@ -72,11 +72,20 @@ def playerStandings():
     conn = connect()
     c = conn.cursor()
     c.execute("DROP VIEW IF EXISTS win_totals;")
-    c.execute("CREATE VIEW win_totals as select players.id, players.name, count(players.name) as win_total, count(players.id) from players, matches where players.id = matches.winner group by players.id, players.name order by win_total desc;")
-    c.execute("select * from win_totals")
+    c.execute("select * from matches")
     results = c.fetchall()
-    conn.close()
-    return results
+    if results:
+        c.execute("CREATE VIEW win_totals as select players.id, players.name, count(players.name) as win_total, count(players.id) as matches from players, matches where players.id = matches.winner group by players.id, players.name order by win_total desc;")
+        c.execute("select * from win_totals")
+        results = c.fetchall()
+        conn.close()
+        return results
+    else:
+        c.execute("create view win_totals as select players.id, players.name, 0 as matches, 0 as win_total from players;")
+        c.execute("select * from win_totals")
+        results = c.fetchall()
+        conn.close()
+        return results
 
 
 def reportMatch(winner, loser):
