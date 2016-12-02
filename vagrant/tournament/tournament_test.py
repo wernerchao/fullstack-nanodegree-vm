@@ -83,20 +83,24 @@ def testReportMatches():
     Test that matches are reported properly.
     Test to confirm matches are deleted properly.
     """
-    # deleteMatches()
-    # deletePlayers()
+    deleteMatches()
+    deletePlayers()
     registerPlayer("Bruno Walton")
     registerPlayer("Boots O'Neal")
     registerPlayer("Cathy Burton")
     registerPlayer("Diane Grant")
     standings = playerStandings()
     print standings
-    reportMatch(28, 27)
-    reportMatch(29, 30)
+    # reportMatch(28, 27)
+    # reportMatch(29, 30)
+    # [id1, id2] = [row[0] for row in standings]
+    # print id1
+    # print id2
     [id1, id2, id3, id4] = [row[0] for row in standings]
-    # reportMatch(id1, id2)
-    # reportMatch(id3, id4)
-    # standings = playerStandings()
+    reportMatch(id1, id2)
+    reportMatch(id3, id4)
+    standings = playerStandings()
+    print standings
     # for (i, n, w, m) in standings:
     #     if m != 1:
     #         raise ValueError("Each player should have one match recorded.")
