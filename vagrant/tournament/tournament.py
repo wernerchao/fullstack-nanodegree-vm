@@ -116,5 +116,39 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("DROP VIEW IF EXISTS pairings;")
+    c.execute("DROP VIEW IF EXISTS win_totals;")
+    c.execute("select count(id) as num from players;")
+    length = c.fetchone()
+    print "length[0]"
+    print length[0]
+    length = (length[0]/2)
+    print "length"
+    print length
 
+    ### Basically copied from playerStandings()
+    c.execute("select * from matches")
+    results = c.fetchall()
+    if results:
+        c.execute("create view win_totals as select players.id, players.name, count(players.name) as win_total, count(players.id) as matches from players, matches where players.id = matches.winner group by players.id, players.name order by win_total desc;")
+        # c.execute("select * from win_totals")
+        # results = c.fetchall()
+
+    else:
+        c.execute("create view win_totals as select players.id, players.name, 0 as matches, 0 as win_total from players;")
+        # c.execute("select * from win_totals")
+        # results = c.fetchall()
+
+    for i in range(0,length):
+        print "counting i:"
+        print i
+        offset_number = i * 2
+        print "offset_number:"
+        print offset_number
+        c.execute("select * from (select win_totals.id as id1, win_totals.name as name1 from win_totals offset (%s) limit 1) t cross join (select win_totals.id as id2, win_totals.name as name2 from win_totals offset (%s) limit 1) m", (offset_number, offset_number+1))
+        results = c.fetchall()
+    conn.close()
+    return results
 

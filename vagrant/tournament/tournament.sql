@@ -6,8 +6,8 @@
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
 
+DROP VIEW IF EXISTS win_totals, pairings;
 DROP TABLE IF EXISTS players, matches;
-DROP VIEW IF EXISTS win_totals;
 
 CREATE TABLE players (
     id serial NOT NULL,

@@ -62,10 +62,13 @@ def testStandingsBeforeMatches():
     registerPlayer("Melpomene Murray")
     registerPlayer("Randy Schwartz")
     standings = playerStandings()
-    print "testing standings: "
-    print standings
-    print "testing len(standings): "
-    print len(standings)
+    
+    ### Self-made tests
+    # print "testing standings: "
+    # print standings
+    # print "testing len(standings): "
+    # print len(standings)
+
     if len(standings) < 2:
         raise ValueError("Players should appear in playerStandings even before "
                          "they have played any matches.")
@@ -94,35 +97,37 @@ def testReportMatches():
     registerPlayer("Cathy Burton")
     registerPlayer("Diane Grant")
     standings = playerStandings()
-    print standings
+    
+    ### I've added these extra lines for testing
+    # print standings
     # reportMatch(28, 27)
     # reportMatch(29, 30)
     # [id1, id2] = [row[0] for row in standings]
     # print id1
     # print id2
+
     [id1, id2, id3, id4] = [row[0] for row in standings]
     reportMatch(id1, id2)
     reportMatch(id3, id4)
     standings = playerStandings()
-    print standings
-    # for (i, n, w, m) in standings:
-    #     if m != 1:
-    #         raise ValueError("Each player should have one match recorded.")
-    #     if i in (id1, id3) and w != 1:
-    #         raise ValueError("Each match winner should have one win recorded.")
-    #     elif i in (id2, id4) and w != 0:
-    #         raise ValueError("Each match loser should have zero wins recorded.")
-    # print "7. After a match, players have updated standings."
-    # deleteMatches()
-    # standings = playerStandings()
-    # if len(standings) != 4:
-    #     raise ValueError("Match deletion should not change number of players in standings.")
-    # for (i, n, w, m) in standings:
-    #     if m != 0:
-    #         raise ValueError("After deleting matches, players should have zero matches recorded.")
-    #     if w != 0:
-    #         raise ValueError("After deleting matches, players should have zero wins recorded.")
-    # print "8. After match deletion, player standings are properly reset.\n9. Matches are properly deleted."
+    for (i, n, w, m) in standings:
+        if m != 1:
+            raise ValueError("Each player should have one match recorded.")
+        if i in (id1, id3) and w != 1:
+            raise ValueError("Each match winner should have one win recorded.")
+        elif i in (id2, id4) and w != 0:
+            raise ValueError("Each match loser should have zero wins recorded.")
+    print "7. After a match, players have updated standings."
+    deleteMatches()
+    standings = playerStandings()
+    if len(standings) != 4:
+        raise ValueError("Match deletion should not change number of players in standings.")
+    for (i, n, w, m) in standings:
+        if m != 0:
+            raise ValueError("After deleting matches, players should have zero matches recorded.")
+        if w != 0:
+            raise ValueError("After deleting matches, players should have zero wins recorded.")
+    print "8. After match deletion, player standings are properly reset.\n9. Matches are properly deleted."
 
 def testPairings():
     """
@@ -141,6 +146,7 @@ def testPairings():
     standings = playerStandings()
     [id1, id2, id3, id4, id5, id6, id7, id8] = [row[0] for row in standings]
     pairings = swissPairings()
+    print pairings
     if len(pairings) != 4:
         raise ValueError(
             "For eight players, swissPairings should return 4 pairs. Got {pairs}".format(pairs=len(pairings)))
@@ -169,9 +175,9 @@ def testPairings():
 
 
 if __name__ == '__main__':
-    # testRegister()
-    # testCount()
+    # testRegister() ### This is a self-made test.
+    testCount()
     testStandingsBeforeMatches()
-    # testReportMatches()
-    # testPairings()
+    testReportMatches()
+    testPairings()
     print "Success!  All tests pass!"
