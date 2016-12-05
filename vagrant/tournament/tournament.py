@@ -74,18 +74,78 @@ def playerStandings():
     c.execute("DROP VIEW IF EXISTS win_totals;")
     c.execute("select * from matches")
     results = c.fetchall()
-    if results:
-        c.execute("CREATE VIEW win_totals as select players.id, players.name, count(players.name) as win_total, count(players.id) as matches from players, matches where players.id = matches.winner group by players.id, players.name order by win_total desc;")
-        c.execute("select * from win_totals")
-        results = c.fetchall()
-        conn.close()
-        return results
-    else:
-        c.execute("create view win_totals as select players.id, players.name, 0 as matches, 0 as win_total from players;")
-        c.execute("select * from win_totals")
-        results = c.fetchall()
-        conn.close()
-        return results
+
+    c.execute("\
+    CREATE view win_totals as \
+    SELECT * FROM \
+        (SELECT \
+            players.id, players.name, count(players.name) as win_total, \
+            count(players.id) as matches\
+        FROM players, matches \
+        WHERE players.id = matches.winner \
+        GROUP BY players.id, players.name \
+        UNION \
+        select players.id, players.name, 0 as matches, 0 as win_total FROM players order by win_total desc)s;")
+    c.execute("create view standings as select id, name, sum(win_total) as win_total, sum(matches) as matches FROM win_totals group by id, name order by win_total desc;")
+    c.execute("select * from standings")
+    results = c.fetchall()
+    return results
+
+
+
+
+CREATE view win_totals as \
+SELECT \
+            players.id, players.name, count(players.name) as win_total \
+        FROM players, matches \
+        WHERE players.id = matches.winner \
+        GROUP BY players.id, players.name
+
+
+CREATE view lose_totals as \
+SELECT \
+            players.id, players.name, count(players.name) as lose_total \
+        FROM players, matches \
+        WHERE players.id = matches.loser \
+        GROUP BY players.id, players.name
+
+
+SELECT * FROM \
+        (SELECT \
+            players.id, players.name, count(players.name) as win_total \
+        FROM players, matches \
+        WHERE players.id = matches.winner \
+        GROUP BY players.id, players.name)t
+        JOIN \
+        (SELECT \
+            players.id, players.name, count(players.name) as lose_total \
+        FROM players, matches \
+        WHERE players.id = matches.loser \
+        GROUP BY players.id, players.name)s;
+
+
+SELECT CONCAT(matches.winner, matches.loser), COUNT(matches.winner) FROM matches GROUP BY CONCAT(matches.winner, matches.loser); 
+SELECT VALUE
+from matches
+UNPIVOT
+(
+  VALUE
+  for COL in (winner, loser)
+) un
+ORDER BY id, col;
+
+    # if results:
+    #     c.execute("CREATE VIEW win_totals as select players.id, players.name, count(players.name) as win_total, count(players.id) as matches from players, matches WHERE players.id = matches.winner group by players.id, players.name order by win_total desc;")
+    #     c.execute("select * from win_totals")
+    #     results = c.fetchall()
+    #     conn.close()
+    #     return results
+    # else:
+    #     c.execute("create view win_totals as select players.id, players.name, 0 as matches, 0 as win_total from players;")
+    #     c.execute("select * from win_totals")
+    #     results = c.fetchall()
+    #     conn.close()
+    #     return results
 
 
 def reportMatch(winner, loser):
@@ -131,15 +191,16 @@ def swissPairings():
     ### Basically copied from playerStandings()
     c.execute("select * from matches")
     results = c.fetchall()
-    if results:
-        c.execute("create view win_totals as select players.id, players.name, count(players.name) as win_total, count(players.id) as matches from players, matches where players.id = matches.winner group by players.id, players.name order by win_total desc;")
-        # c.execute("select * from win_totals")
-        # results = c.fetchall()
+    # if results:
+    c.execute("create view win_totals as select * from (select players.id, players.name, count(players.name) as win_total, count(players.id) as matches from players, matches WHERE players.id = matches.winner group by players.id, players.name UNION select players.id, players.name, 0 as matches, 0 as win_total from players order by win_total desc)s;")
+    c.execute("create view standings as select id, name, sum(win_total) as win_total, sum(matches) as matches from win_totals group by id, name order by win_total desc;")
 
-    else:
-        c.execute("create view win_totals as select players.id, players.name, 0 as matches, 0 as win_total from players;")
-        # c.execute("select * from win_totals")
-        # results = c.fetchall()
+    # else:
+    #     c.execute("create view win_totals as select players.id, players.name, 0 as matches, 0 as win_total from players;")
+
+    ### Just using this to set result as a list with nothing in it, so it can add to itself.
+    c.execute("select * from matches limit 0")
+    results = c.fetchall()
 
     for i in range(0,length):
         print "counting i:"
@@ -148,7 +209,9 @@ def swissPairings():
         print "offset_number:"
         print offset_number
         c.execute("select * from (select win_totals.id as id1, win_totals.name as name1 from win_totals offset (%s) limit 1) t cross join (select win_totals.id as id2, win_totals.name as name2 from win_totals offset (%s) limit 1) m", (offset_number, offset_number+1))
-        results = c.fetchall()
+        results += c.fetchall()
+        print "results"
+        print results
     conn.close()
+    print "finished tournament.py"
     return results
-
