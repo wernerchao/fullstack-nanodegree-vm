@@ -75,8 +75,9 @@ def playerStandings():
     c.execute("select * from matches")
     results = c.fetchall()
 
+    # create a win_totals view by union-ing [winners in the matches] and [all players when no matches are played]
     c.execute("\
-    CREATE view win_totals as \
+    CREATE VIEW win_totals as \
     SELECT * FROM \
         (SELECT \
             players.id, players.name, count(players.name) as win_total, \
@@ -85,15 +86,27 @@ def playerStandings():
         WHERE players.id = matches.winner \
         GROUP BY players.id, players.name \
         UNION \
-        select players.id, players.name, 0 as matches, 0 as win_total FROM players order by win_total desc)s;")
-    c.execute("create view standings as select id, name, sum(win_total) as win_total, sum(matches) as matches FROM win_totals group by id, name order by win_total desc;")
+        SELECT players.id, players.name, 0 as matches, 0 as win_total \
+        FROM players \
+        ORDER BY win_total DESC)s;")
+
+    # clean up the win_totals view by summing the wins and matches
+    c.execute("\
+    CREATE VIEW standings as \
+    SELECT id, name, sum(win_total) as win_total, \
+    sum(matches) as matches \
+    FROM win_totals \
+    GROUP BY id, name \
+    ORDER BY win_total DESC;")
+
     c.execute("select * from standings")
     results = c.fetchall()
     return results
 
 
 
-
+### Testing these queries here
+# Making a win_totals view
 CREATE view win_totals as \
 SELECT \
             players.id, players.name, count(players.name) as win_total \
@@ -101,7 +114,7 @@ SELECT \
         WHERE players.id = matches.winner \
         GROUP BY players.id, players.name
 
-
+# Making a lose_totals view
 CREATE view lose_totals as \
 SELECT \
             players.id, players.name, count(players.name) as lose_total \
@@ -109,33 +122,31 @@ SELECT \
         WHERE players.id = matches.loser \
         GROUP BY players.id, players.name
 
-
+# UNION win_totals and lose_totals views
 SELECT * FROM \
         (SELECT \
             players.id, players.name, count(players.name) as win_total \
         FROM players, matches \
         WHERE players.id = matches.winner \
         GROUP BY players.id, players.name)t
-        JOIN \
+        UNION \
         (SELECT \
             players.id, players.name, count(players.name) as lose_total \
         FROM players, matches \
         WHERE players.id = matches.loser \
         GROUP BY players.id, players.name)s;
 
-
-SELECT CONCAT(matches.winner, matches.loser), COUNT(matches.winner) FROM matches GROUP BY CONCAT(matches.winner, matches.loser); 
-SELECT VALUE
-from matches
-UNPIVOT
-(
-  VALUE
-  for COL in (winner, loser)
-) un
-ORDER BY id, col;
-
+    ### if results is not None, then query data from matches and players
+    ### if results is None, then set everything 0
     # if results:
-    #     c.execute("CREATE VIEW win_totals as select players.id, players.name, count(players.name) as win_total, count(players.id) as matches from players, matches WHERE players.id = matches.winner group by players.id, players.name order by win_total desc;")
+    #     c.execute("CREATE VIEW win_totals as \
+    #     select players.id, players.name, count(players.name) as win_total, \
+    #     count(players.id) as matches \
+    #     from players, matches \
+    #     WHERE players.id = matches.winner \
+    #     group by players.id, players.name \
+    #     order by win_total desc;")
+
     #     c.execute("select * from win_totals")
     #     results = c.fetchall()
     #     conn.close()
