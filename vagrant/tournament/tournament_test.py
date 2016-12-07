@@ -8,15 +8,6 @@
 
 from tournament import *
 
-def testRegister():
-    registerPlayer("Chandra Nalaar")
-    c = countPlayers()
-    print "countPlayers() is: "
-    print c
-    if c != 1:
-        raise ValueError(
-            "After one player registers, countPlayers() should be 1. Got {c}".format(c=c))
-    print "0. countPlayers() returns 1 after one player is registered."
 
 def testCount():
     """
@@ -62,12 +53,6 @@ def testStandingsBeforeMatches():
     registerPlayer("Melpomene Murray")
     registerPlayer("Randy Schwartz")
     standings = playerStandings()
-    
-    ### Self-made tests
-    # print "testing standings: "
-    # print standings
-    # print "testing len(standings): "
-    # print len(standings)
 
     if len(standings) < 2:
         raise ValueError("Players should appear in playerStandings even before "
@@ -97,14 +82,6 @@ def testReportMatches():
     registerPlayer("Cathy Burton")
     registerPlayer("Diane Grant")
     standings = playerStandings()
-    
-    ### I've added these extra lines for testing
-    # print standings
-    # reportMatch(28, 27)
-    # reportMatch(29, 30)
-    # [id1, id2] = [row[0] for row in standings]
-    # print id1
-    # print id2
 
     [id1, id2, id3, id4] = [row[0] for row in standings]
     reportMatch(id1, id2)
@@ -187,9 +164,8 @@ def testPairings():
 
 
 if __name__ == '__main__':
-    # testRegister() ### This is a self-made test.
-    # testCount()
-    # testStandingsBeforeMatches()
+    testCount()
+    testStandingsBeforeMatches()
     testReportMatches()
-    # testPairings()
+    testPairings()
     print "Success!  All tests pass!"
